@@ -12,9 +12,27 @@ def start(message):
     btn1 = types.KeyboardButton("👋 Поздороваться")
     btn2 = types.KeyboardButton("❓ Задать вопрос")
     markup.add(btn1, btn2)
-    bot.send_message(message.chat.id,
-                     text="Привет, {0.first_name}! Я тестовый бот для твоей статьи для habr.com".format(
-                         message.from_user), reply_markup=markup)
+    sent = bot.send_message(message.chat.id,
+                            'Привет, {0.first_name}. Рад тебя видеть. Вот твоя первая лягушка!'.format(
+                                message.from_user), reply_markup=markup)
+    bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog.png',
+                                                       'rb'))  # https://papik.pro/risunki/18647-milye-zhabki-risunki-69-foto.html
+    sent = bot.send_message(message.chat.id, 'Чтобы узнать список команд, напиши "/rules"')
+    bot.register_next_step_handler(sent, rules)
+
+
+@bot.message_handler(commands=['rules'])
+def rules(message):
+    bot.send_message(message.chat.id, '''
+/show - показать твой аккаунт с лягушкой
+/feed - покормить лягушку
+/money - собрать букашек
+/fortune - Сыграть в рулетку
+/playrps - Сыграть в камень-ножницы-бумага
+/area -	Отправить лягушку на арену, где можно драться с рандомными жабами и получать награды
+/shop -	Покупка дополнительных бонусов, которые используются сразу же
+/upclass - Повысить уровень класса
+'''.format(name=message.text))
 
 
 @bot.message_handler(content_types=['text'])
@@ -46,36 +64,4 @@ def func(message):
 
 
 bot.polling(none_stop=True)
-
-@bot.message_handler(commands=['start'])
-def start(message):
-    sent = bot.send_message(message.chat.id, 'Как тебя зовут?')
-    bot.register_next_step_handler(sent, hello)
-
-
-def hello(message):
-    sent = bot.send_message(message.chat.id,
-                            'Привет, {name}. Рад тебя видеть. Вот твоя первая лягушка!'.format(name=message.text))
-    bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog.png',
-                                                       'rb'))  # https://papik.pro/risunki/18647-milye-zhabki-risunki-69-foto.html
-    sent = bot.send_message(message.chat.id, 'Чтобы узнать список команд, напиши "/rules"')
-    bot.register_next_step_handler(sent, rules)
-
-
-# @bot.message_handler(commands=['clear'])
-# def clear(message):
-#     bot.delete_message(chat_id=message.chat.id, message_id=message.message_id,timeout=None, until_date=None,
-#                         api_kwargs=None, revoke_messages=True)
-# bot.ban_chat_member(chat_id=message.chat.id, message_id=message.message_id, timeout=None, until_date=None,
-#                     api_kwargs=None, revoke_messages=True)
-
-
-@bot.message_handler(commands=['rules'])
-def rules(message):
-    bot.send_message(message.chat.id, '''
-/show - показать твой аккаунт с лягушкой
-/feed - покормить лягушку
-/money - собрать букашек'''.format(name=message.text))
-
-
 bot.polling()
