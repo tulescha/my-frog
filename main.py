@@ -46,6 +46,17 @@ def fortune(message):
                      reply_markup=markup)
 
 
+@bot.message_handler(commands=['playrps'])
+def fortune(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn = types.KeyboardButton("🗿✂📃")
+    markup.add(btn)
+    bot.send_message(message.chat.id,
+                     '''Это всего лишь "камень-ножницы-бумага". Здесь все "на удачу". Начнем?'''.format(
+                         name=message.text),
+                     reply_markup=markup)
+
+
 @bot.message_handler(content_types=['text'])
 def func(message):
     if (message.text == "❓ Задать вопрос"):
@@ -67,13 +78,63 @@ def func(message):
                          /shop -	Покупка дополнительных бонусов, которые используются сразу же
                          /upclass - Повысить уровень класса'''.format(name=message.text))
     elif (message.text == "Начать"):
-        a, b, c = random.randint(1, 100), random.randint(1, 100), random.randint(1, 100)
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        btn = types.KeyboardButton("Начать")
+        markup.add(btn)
+        back = types.KeyboardButton("Вернуться в главное меню")
+        markup.add(back)
+        bot.send_message(message.chat.id,
+                         'Если хочешь закончить, то нажми "Вернуться в главное меню"'.format(name=message.text),
+                         reply_markup=markup)
+        a, b, c = random.randint(1, 50), random.randint(1, 50), random.randint(1, 50)
         if a == b == c:
-            bot.send_message(message.chat.id, f'''{a}{b}{c} Вот это удача!'''.format(name=message.text))
-        elif len(set(a, b, c)) == 2:
-            bot.send_message(message.chat.id, f'''{a}{b}{c} Довольно неплохо!'''.format(name=message.text))
+            bot.send_message(message.chat.id, f'{a} {b} {c} Вот это удача!')
+        elif len(set([a, b, c])) == 2:
+            bot.send_message(message.chat.id, f'{a} {b} {c} Довольно неплохо!')
         else:
-            bot.send_message(message.chat.id, f'''{a}{b}{c} Мда...'''.format(name=message.text))
+            bot.send_message(message.chat.id, f'{a} {b} {c} Мда...')
+
+    elif (message.text == "🗿✂📃"):
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        # btn = types.KeyboardButton("🗿✂📃")
+        rock, paper, scissors = types.KeyboardButton("🗿"), types.KeyboardButton("📃"), types.KeyboardButton("✂")
+        markup.add(rock, paper, scissors)
+        # markup.add(btn)
+        back = types.KeyboardButton("Вернуться в главное меню")
+        markup.add(back)
+        bot.send_message(message.chat.id,
+                         'Если хочешь закончить, то нажми "Вернуться в главное меню"'.format(name=message.text),
+                         reply_markup=markup)
+    rps = ['🗿', '✂', '📃']
+    if (message.text == "🗿"):
+        frog = random.choice(rps)
+        bot.send_message(message.chat.id, f'{frog}')
+        if frog == "🗿":
+            bot.send_message(message.chat.id, text='Ничья')
+        elif frog == '✂':
+            bot.send_message(message.chat.id, text='Ты выиграл')
+        else:
+            bot.send_message(message.chat.id, text='Ты проиграл')
+    elif (message.text == '✂'):
+        frog = random.choice(rps)
+        bot.send_message(message.chat.id, f'{frog}')
+        if frog == '✂':
+            bot.send_message(message.chat.id, text='Ничья')
+        elif frog == '📃':
+            bot.send_message(message.chat.id, text='Ты выиграл')
+        else:
+            bot.send_message(message.chat.id, text='Ты проиграл')
+    elif (message.text == '📃'):
+        frog = random.choice(rps)
+        bot.send_message(message.chat.id, f'{frog}')
+        if frog == '📃':
+            bot.send_message(message.chat.id, text='Ничья')
+        elif frog == '🗿':
+            bot.send_message(message.chat.id, text='Ты выиграл')
+        else:
+            bot.send_message(message.chat.id, text='Ты проиграл')
+
+
 
     elif (message.text == "Вернуться в главное меню"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
