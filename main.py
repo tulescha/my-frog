@@ -1,7 +1,7 @@
 import random
 
 import telebot
-from telebot import types  # для указание типов
+from telebot import types
 
 TOKEN = '5180182887:AAED3c25qCTsrCuSOSChSM6W_C2cTa7FkwQ'  # полученный у @BotFather
 
@@ -57,8 +57,27 @@ def fortune(message):
                      reply_markup=markup)
 
 
+@bot.message_handler(commands=['show'])
+def show(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    back = types.KeyboardButton("Вернуться в главное меню")
+    markup.add(back)
+    bot.send_message(message.chat.id, '''
+    Имя:Kva
+    Сытость: 78
+    Состояние: 90
+    Букашки: 23
+    Класс: 3
+    Настроение: ок
+    Победы: 45
+    Поражения: 34'''.format(
+        name=message.text),
+                     reply_markup=markup)
+
+
 @bot.message_handler(content_types=['text'])
 def func(message):
+    rps = ['🗿', '✂', '📃']
     if (message.text == "❓ Задать вопрос"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn2 = types.KeyboardButton("Что я могу?")
@@ -77,6 +96,13 @@ def func(message):
                          /area -	Отправить лягушку на арену, где можно драться с рандомными жабами и получать награды
                          /shop -	Покупка дополнительных бонусов, которые используются сразу же
                          /upclass - Повысить уровень класса'''.format(name=message.text))
+    # elif (message.text == "show"):
+    #     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    #     back = types.KeyboardButton("Вернуться в главное меню")
+    #     markup.add(back)
+    #     bot.send_message(message.chat.id,
+    #                      'dos'.format(name=message.text),
+    #                      reply_markup=markup)
     elif (message.text == "Начать"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn = types.KeyboardButton("Начать")
@@ -86,7 +112,7 @@ def func(message):
         bot.send_message(message.chat.id,
                          'Если хочешь закончить, то нажми "Вернуться в главное меню"'.format(name=message.text),
                          reply_markup=markup)
-        a, b, c = random.randint(1, 50), random.randint(1, 50), random.randint(1, 50)
+        a, b, c = random.randint(1, 5), random.randint(1, 5), random.randint(1, 5)
         if a == b == c:
             bot.send_message(message.chat.id, f'{a} {b} {c} Вот это удача!')
         elif len(set([a, b, c])) == 2:
@@ -105,8 +131,8 @@ def func(message):
         bot.send_message(message.chat.id,
                          'Если хочешь закончить, то нажми "Вернуться в главное меню"'.format(name=message.text),
                          reply_markup=markup)
-    rps = ['🗿', '✂', '📃']
-    if (message.text == "🗿"):
+
+    elif (message.text == "🗿"):
         frog = random.choice(rps)
         bot.send_message(message.chat.id, f'{frog}')
         if frog == "🗿":
