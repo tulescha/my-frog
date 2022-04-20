@@ -86,23 +86,17 @@ def func(message):
         bot.send_message(message.chat.id, text="Задай мне вопрос", reply_markup=markup)
 
     elif message.text == "Что я могу?":
-        bot.send_message(message.chat.id,
-                         '''/rules - показать правила
-                         /show - показать твой аккаунт с лягушкой
-                         /feed - покормить лягушку
-                         /money - собрать букашек
-                         /fortune - Сыграть в рулетку
-                         /playrps - Сыграть в камень-ножницы-бумага
-                         /area -	Отправить лягушку на арену, где можно драться с рандомными жабами и получать награды
-                         /shop -	Покупка дополнительных бонусов, которые используются сразу же
-                         /upclass - Повысить уровень класса'''.format(name=message.text))
-    # elif (message.text == "show"):
-    #     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    #     back = types.KeyboardButton("Вернуться в главное меню")
-    #     markup.add(back)
-    #     bot.send_message(message.chat.id,
-    #                      'dos'.format(name=message.text),
-    #                      reply_markup=markup)
+        bot.send_message(message.chat.id,'''
+/rules - показать правила
+/show - показать твой аккаунт с лягушкой
+/feed - покормить лягушку
+/money - собрать букашек
+/fortune - Сыграть в рулетку
+/playrps - Сыграть в камень-ножницы-бумага
+/area -	Отправить лягушку на арену, где можно драться с рандомными жабами и получать награды
+/shop -	Покупка дополнительных бонусов, которые используются сразу же
+/upclass - Повысить уровень класса'''.format(name=message.text))
+
     elif (message.text == "Начать"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn = types.KeyboardButton("Начать")
@@ -112,13 +106,34 @@ def func(message):
         bot.send_message(message.chat.id,
                          'Если хочешь закончить, то нажми "Вернуться в главное меню"'.format(name=message.text),
                          reply_markup=markup)
+        guarantee = [1] * 90
+        count_guarantee10 = 0
+        count_guarantee90 = 0
         a, b, c = random.randint(1, 5), random.randint(1, 5), random.randint(1, 5)
         if a == b == c:
             bot.send_message(message.chat.id, f'{a} {b} {c} Вот это удача!')
-        elif len(set([a, b, c])) == 2:
-            bot.send_message(message.chat.id, f'{a} {b} {c} Довольно неплохо!')
+            guarantee = [1] * 90
+            count_guarantee90 = 0
+        elif count_guarantee90 in [70, 80, 90]:
+            bot.send_message(message.chat.id, f'{a} {b} {c} Это гарант😳')
+            guarantee = [1] * 90
+            count_guarantee90 = 0
         else:
-            bot.send_message(message.chat.id, f'{a} {b} {c} Мда...')
+            if count_guarantee10 in [8, 9, 10]:
+                bot.send_message(message.chat.id, f'{a} {b} {c} Довольно неплохо!')
+                count_guarantee10 = 0
+                count_guarantee90 += 1
+            else:
+                if len(set([a, b, c])) == 2:
+                    bot.send_message(message.chat.id, f'{a} {b} {c} Довольно неплохо!')
+                    count_guarantee10 = 0
+                    count_guarantee90 += 1
+                else:
+                    bot.send_message(message.chat.id, f'{a} {b} {c} Мда...')
+                    count_guarantee10 += 1
+                    count_guarantee90 += 1
+        print(count_guarantee90)
+        del guarantee[0]
 
     elif (message.text == "🗿✂📃"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
