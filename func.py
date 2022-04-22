@@ -5,6 +5,8 @@ from token_bot import *
 
 @bot.message_handler(commands=['start'])
 def start(message):
+    btn = types.KeyboardButton("❓ Задать вопрос")
+    markup.add(btn)
     sent = bot.send_message(message.chat.id,
                             'Привет, {0.first_name}. Рад тебя видеть. Вот твоя первая лягушка!'.format(
                                 message.from_user), reply_markup=markup)
@@ -17,8 +19,6 @@ def start(message):
         bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog3.jpg', 'rb'))
     else:
         bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog4.jpg', 'rb'))
-    btn = types.KeyboardButton("❓ Задать вопрос")
-    markup.add(btn)
     sent = bot.send_message(message.chat.id, 'Чтобы узнать список команд, нажми на кнопку "❓ Задать вопрос"')
 
 
@@ -53,8 +53,7 @@ def fortune(message):
     markup.add(btn)
     bot.send_message(message.chat.id,
                      '''Это всего лишь "камень-ножницы-бумага". Здесь все "на удачу". Начнем?'''.format(
-                         name=message.text),
-                     reply_markup=markup)
+                         name=message.text), reply_markup=markup)
 
 
 @bot.message_handler(commands=['show'])
@@ -93,6 +92,18 @@ def money(message):
                      '''За сегодня накопилось столько букашек:'''.format(
                          name=message.text), reply_markup=markup)
 
+
+class Game:
+    def __init__(self):
+        self.counter = 0
+
+    def iterate(self):
+        self.counter += 1
+
+    def clear(self):
+        self.counter = 0
+
+gm = Game()
 
 @bot.message_handler(content_types=['text'])
 def func(message):
@@ -144,34 +155,29 @@ def func(message):
         bot.send_message(message.chat.id,
                          'Если хочешь закончить, то нажми "Вернуться в главное меню"'.format(name=message.text),
                          reply_markup=markup)
-        guarantee = [1] * 90
-        count_guarantee10 = 0
-        count_guarantee90 = 0
-        a, b, c = random.randint(1, 5), random.randint(1, 5), random.randint(1, 5)
+
+        count_guarantee90 = []
+        a, b, c = random.randint(1, 100), random.randint(1, 100), random.randint(1, 100)
         if a == b == c:
             bot.send_message(message.chat.id, f'{a} {b} {c} Вот это удача!')
-            guarantee = [1] * 90
-            count_guarantee90 = 0
-        elif count_guarantee90 in [70, 80, 90]:
+            count_guarantee90 = []
+        elif len(count_guarantee90) == 15:
             bot.send_message(message.chat.id, f'{a} {b} {c} Это гарант😳')
-            guarantee = [1] * 90
-            count_guarantee90 = 0
+            count_guarantee90 = []
         else:
-            if count_guarantee10 in [8, 9, 10]:
+            if gm.counter == 9:
                 bot.send_message(message.chat.id, f'{a} {b} {c} Довольно неплохо!')
-                count_guarantee10 = 0
-                count_guarantee90 += 1
+                gm.clear()
             else:
                 if len(set([a, b, c])) == 2:
                     bot.send_message(message.chat.id, f'{a} {b} {c} Довольно неплохо!')
-                    count_guarantee10 = 0
-                    count_guarantee90 += 1
+                    gm.clear()
                 else:
                     bot.send_message(message.chat.id, f'{a} {b} {c} Мда...')
-                    count_guarantee10 += 1
-                    count_guarantee90 += 1
-        print(count_guarantee90)
-        del guarantee[0]
+                    gm.iterate()
+            count_guarantee90.append(1)
+        print('fewjo',count_guarantee90)
+
 
     elif (message.text == "🗿✂📃"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
