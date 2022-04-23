@@ -1,25 +1,7 @@
 import random
 
+from bd import *
 from token_bot import *
-
-
-@bot.message_handler(commands=['start'])
-def start(message):
-    btn = types.KeyboardButton("❓ Задать вопрос")
-    markup.add(btn)
-    sent = bot.send_message(message.chat.id,
-                            'Привет, {0.first_name}. Рад тебя видеть. Вот твоя первая лягушка!'.format(
-                                message.from_user), reply_markup=markup)
-    num_foto = random.randint(1, 4)
-    if num_foto == 1:
-        bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog.png', 'rb'))
-    elif num_foto == 2:
-        bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog2.jpg', 'rb'))
-    elif num_foto == 3:
-        bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog3.jpg', 'rb'))
-    else:
-        bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog4.jpg', 'rb'))
-    sent = bot.send_message(message.chat.id, 'Чтобы узнать список команд, нажми на кнопку "❓ Задать вопрос"')
 
 
 @bot.message_handler(commands=['rules'])
@@ -35,6 +17,28 @@ def rules(message):
 /shop -	Покупка дополнительных бонусов, которые используются сразу же
 /upclass - Повысить уровень класса
 '''.format(name=message.text))
+
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    if not (add_new_profile(message.chat.id)):
+        rules(message)
+        return
+    btn = types.KeyboardButton("❓ Задать вопрос")
+    markup.add(btn)
+    sent = bot.send_message(message.chat.id,
+                            'Привет, {0.username}. Рад тебя видеть. Вот твоя первая лягушка!'.format(
+                                message.from_user), reply_markup=markup)
+    num_foto = random.randint(1, 4)
+    if num_foto == 1:
+        bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog.png', 'rb'))
+    elif num_foto == 2:
+        bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog2.jpg', 'rb'))
+    elif num_foto == 3:
+        bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog3.jpg', 'rb'))
+    else:
+        bot.send_photo(chat_id=message.chat.id, photo=open('data/start_frog4.jpg', 'rb'))
+    sent = bot.send_message(message.chat.id, 'Чтобы узнать список команд, нажми на кнопку "❓ Задать вопрос"')
 
 
 @bot.message_handler(commands=['fortune'])
@@ -61,16 +65,16 @@ def show(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     back = types.KeyboardButton("Вернуться в главное меню")
     markup.add(back)
-    bot.send_message(message.chat.id, '''
-Имя:Kva
-Сытость: 78
-Состояние: 90
-Букашки: 23
-Класс: 3
-Настроение: ок
-Победы: 45
-Поражения: 34'''.format(
-        name=message.text), reply_markup=markup)
+    frog = take_frog(message.chat.id)
+    sp = [f'🐸 Имя: {message.from_user.first_name}',
+          f'🦟 Сытость: {frog[0]}',
+          f'💚 Состояние: {frog[1]}',
+          f'🐞 Букашки: {frog[2]}',
+          f'🛠 Класс: {frog[3]}',
+          f'🚬 Настроение: {frog[4]}',
+          f'✅ Победы: {frog[5]}',
+          f'❌ Поражения: {frog[6]}']
+    bot.send_message(message.chat.id, ('\n').join(sp).format(name=message.text), reply_markup=markup)
 
 
 @bot.message_handler(commands=['feed'])
@@ -103,7 +107,9 @@ class Game:
     def clear(self):
         self.counter = 0
 
+
 gm = Game()
+
 
 @bot.message_handler(content_types=['text'])
 def func(message):
@@ -146,6 +152,7 @@ def func(message):
         bot.send_message(message.chat.id,
                          'Все букашки собраны! У тебя х букашек! Возвращайся в главное меню'.format(name=message.text),
                          reply_markup=markup)
+
     elif (message.text == "Начать"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn = types.KeyboardButton("Начать")
@@ -160,23 +167,29 @@ def func(message):
         a, b, c = random.randint(1, 100), random.randint(1, 100), random.randint(1, 100)
         if a == b == c:
             bot.send_message(message.chat.id, f'{a} {b} {c} Вот это удача!')
+            bg = 500
             count_guarantee90 = []
         elif len(count_guarantee90) == 15:
             bot.send_message(message.chat.id, f'{a} {b} {c} Это гарант😳')
+            bg = 500
             count_guarantee90 = []
         else:
             if gm.counter == 9:
                 bot.send_message(message.chat.id, f'{a} {b} {c} Довольно неплохо!')
+                bg = 250
                 gm.clear()
             else:
                 if len(set([a, b, c])) == 2:
                     bot.send_message(message.chat.id, f'{a} {b} {c} Довольно неплохо!')
+                    bg = 250
                     gm.clear()
                 else:
                     bot.send_message(message.chat.id, f'{a} {b} {c} Мда...')
+                    bg = 20
                     gm.iterate()
             count_guarantee90.append(1)
-        print('fewjo',count_guarantee90)
+        add_bugs(message.chat.id, bg)
+        # print('fewjo',count_guarantee90)
 
 
     elif (message.text == "🗿✂📃"):
