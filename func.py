@@ -250,10 +250,17 @@ def func(message):
             bot.send_message(message.chat.id, 'Блин, хватило( очень жаль, что ты эльф'.format(name=message.text))
         else:
             bot.send_message(message.chat.id, 'АХАХАХАХ! Я ТАК И ЗНАЛ! ИДИ РАБОТАЙ!'.format(name=message.text))
+
     elif message.text == "В бой!":
         bot.send_message(message.chat.id, 'Твой враг:'.format(name=message.text))
-        # enemy()
-        res_fight = fight(message.chat.id)
+        heal, attack, class_enemy, enemy = get_enemy(message.chat.id)
+        bot.send_message(message.chat.id, f'''
+Здоровье:{heal}
+Сила атаки: {attack}
+Класс: {class_enemy}''')
+        res_fight = fight(message.chat.id, heal, attack, enemy)
+        bot.send_message(message.chat.id, res_fight)
+
 
 
     elif (message.text == "Начать"):

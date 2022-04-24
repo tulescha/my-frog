@@ -11,13 +11,12 @@ frogs_defeat = 0
 def id_of_frog(profile):
     ids = list(cur.execute(f'''SELECT user_frog_id 
     FROM accounts
-    WHERE telegram_user = "{profile}"
-    ''').fetchone())[0]
+    WHERE telegram_user = "{profile}"''').fetchone())[0]
     return ids
 
 
 def add_new_profile(profile):
-    ids = cur.execute(f'''SELECT id FROM accounts WHERE telegram_user = {profile}''').fetchone()
+    ids = cur.execute(f'''SELECT id FROM accounts WHERE telegram_user = "{profile}"''').fetchone()
     if ids:
         return False
     cur.execute(f'''INSERT INTO frogs (heals, frog_satiety, frog_condition, bugs, frog_class, 
@@ -118,7 +117,7 @@ def condition(profile):
 
 
 def mood(profile, ind):
-    indx = 3
+    indx = 0
     moods = ["Не покормишь - я тебя съем", "Ужасное", "Ей пуфик", "Хорошее", "Отличное"]
     indx += ind
     if indx > 4:
@@ -126,20 +125,15 @@ def mood(profile, ind):
     md_in = moods[indx]
     ids = id_of_frog(profile)
     cur.execute(f'''UPDATE frogs 
-       SET frog_mood = '{md_in}'
+       SET frog_mood = "{md_in}"
        WHERE id = {ids}''')
     con.commit()
 
 
-def fight(profile):
+def fight(profile,enemy_heal, enemy_attack, enemy):
     ids = id_of_frog(profile)
-    enemy = list(cur.execute(f'''SELECT telegram_user FROM accounts WHERE telegram_user != "{profile}"'''))
-    enemy = random.choice(enemy[0])  # list index out of range
-
     my_attack = cur.execute(f'''SELECT attack_power FROM frogs WHERE id = {ids}''').fetchone()[0]
     my_heal = cur.execute(f'''SELECT heals FROM frogs WHERE id = {ids}''').fetchone()[0]
-    enemy_attack = cur.execute(f'''SELECT attack_power FROM frogs WHERE id = {id_of_frog(enemy)}''').fetchone()[0]
-    enemy_heal = cur.execute(f'''SELECT heals FROM frogs WHERE id = {id_of_frog(enemy)}''').fetchone()[0]
 
     while my_heal > 0 and enemy_heal > 0:
         my_heal -= enemy_attack
@@ -158,8 +152,10 @@ def fight(profile):
         return 'Ты проиграл!'
 
 
-def enemy(enemy):
+def get_enemy(profile):
+    enemy = list(cur.execute(f'''SELECT telegram_user FROM accounts WHERE telegram_user != "{profile}"'''))
+    enemy = random.choice(enemy)[0]
     heal = cur.execute(f'''SELECT heals FROM frogs WHERE id = {id_of_frog(enemy)}''').fetchone()[0]
     attack = cur.execute(f'''SELECT attack_power FROM frogs WHERE id = {id_of_frog(enemy)}''').fetchone()[0]
     class_enemy = cur.execute(f'''SELECT frog_class FROM frogs WHERE id = {id_of_frog(enemy)}''').fetchone()[0]
-    return heal, attack, class_enemy
+    return heal, attack, class_enemy, enemy
