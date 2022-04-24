@@ -1,7 +1,5 @@
-import datetime
 import random
 import sqlite3
-
 
 con = sqlite3.connect('frog_db.db', check_same_thread=False)
 cur = con.cursor()
@@ -13,7 +11,7 @@ frogs_defeat = 0
 def id_of_frog(profile):
     ids = list(cur.execute(f'''SELECT user_frog_id 
     FROM accounts
-    WHERE telegram_user = {profile}
+    WHERE telegram_user = "{profile}"
     ''').fetchone())[0]
     return ids
 
@@ -76,10 +74,11 @@ def show_bugs(profile):
     return cur.execute(f'''SELECT bugs FROM frogs
         WHERE id = {ids}''').fetchone()[0]
 
-def feed_frog(profile,price):
+
+def feed_frog(profile, price):
     ids = id_of_frog(profile)
     return cur.execute(f'''SELECT bugs FROM frogs
-            WHERE id = {ids}''').fetchone()[0]>=price
+            WHERE id = {ids}''').fetchone()[0] >= price
 
 
 def upclass(profile, price, frog_class):
@@ -93,6 +92,10 @@ def upclass(profile, price, frog_class):
         cur.execute(f'''UPDATE frogs 
             SET attack_power = {classes[frog_class][1]}
             WHERE id = {ids}''')
+        cur.execute(f'''UPDATE frogs SET frog_class = "{frog_class}" 
+        WHERE id = {ids}''')
+        cur.execute(f'''UPDATE frogs SET heals = "{classes[frog_class][2]}" 
+        WHERE id = {ids}''')
         con.commit()
     else:
         return False
@@ -127,9 +130,36 @@ def mood(profile, ind):
        WHERE id = {ids}''')
     con.commit()
 
+
 def fight(profile):
     ids = id_of_frog(profile)
-    enemy=list(cur.execute(f'''SELECT telegram_user WHERE telegram_user != {profile}'''))
-    enemy=random.choice(enemy)
-    my_attack=cur.execute(f'''SELECT attack_power WHERE id = {ids}''')
-    enemy_attack=cur.execute(f'''SELECT attack_power WHERE id = {id_of_frog(enemy)}''')
+    enemy = list(cur.execute(f'''SELECT telegram_user FROM accounts WHERE telegram_user != "{profile}"'''))
+    enemy = random.choice(enemy[0])  # list index out of range
+
+    my_attack = cur.execute(f'''SELECT attack_power FROM frogs WHERE id = {ids}''').fetchone()[0]
+    my_heal = cur.execute(f'''SELECT heals FROM frogs WHERE id = {ids}''').fetchone()[0]
+    enemy_attack = cur.execute(f'''SELECT attack_power FROM frogs WHERE id = {id_of_frog(enemy)}''').fetchone()[0]
+    enemy_heal = cur.execute(f'''SELECT heals FROM frogs WHERE id = {id_of_frog(enemy)}''').fetchone()[0]
+
+    while my_heal > 0 and enemy_heal > 0:
+        my_heal -= enemy_attack
+        enemy_heal -= my_attack
+    if my_heal > 0 and enemy_heal <= 0:
+        add_bugs(profile, 500)
+        take_away_bugs(enemy, 250)
+        return 'Ты победил!'
+    elif my_heal == enemy_heal:
+        add_bugs(profile, 100)
+        add_bugs(enemy, 100)
+        return 'Ничья'
+    else:
+        add_bugs(enemy, 500)
+        take_away_bugs(profile, 250)
+        return 'Ты проиграл!'
+
+
+def enemy(enemy):
+    heal = cur.execute(f'''SELECT heals FROM frogs WHERE id = {id_of_frog(enemy)}''').fetchone()[0]
+    attack = cur.execute(f'''SELECT attack_power FROM frogs WHERE id = {id_of_frog(enemy)}''').fetchone()[0]
+    class_enemy = cur.execute(f'''SELECT frog_class FROM frogs WHERE id = {id_of_frog(enemy)}''').fetchone()[0]
+    return heal, attack, class_enemy

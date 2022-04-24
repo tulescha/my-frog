@@ -1,5 +1,3 @@
-import random
-
 from bd import *
 from token_bot import *
 
@@ -102,6 +100,19 @@ def feed(message):
                          name=message.text), reply_markup=markup)
 
 
+@bot.message_handler(commands=['area'])
+def area(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn = types.KeyboardButton("В бой!")
+    markup.add(btn)
+    back = types.KeyboardButton("Вернуться в главное меню")
+    markup.add(back)
+    bot.send_message(message.chat.id,
+                     '''Удачи'''.format(
+                         name=message.text), reply_markup=markup)
+    bot.send_photo(chat_id=message.chat.id, photo=open('data/fight.png', 'rb'))
+
+
 @bot.message_handler(commands=['money'])
 def money(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -169,8 +180,9 @@ def func(message):
 Шашлычок: 200 букашек, +100 к сытости, живая, настроение повышается на две фазы
 
 Тортик: 500 букашек, +300 к сытости, живая, настроение повышается на 4 фазы''', reply_markup=markup)
+
     elif message.text == "Яичница":
-        if not(feed_frog(message.chat.id,100)):
+        if not (feed_frog(message.chat.id, 100)):
             bot.send_message(message.chat.id, text="У вас нет букашек")
             return
         bg = 100
@@ -180,8 +192,9 @@ def func(message):
         satiety(message.chat.id, count_satiety)
         condition(message.chat.id)
         mood(message.chat.id, md)
+
     elif message.text == "Шашлычок":
-        if not(feed_frog(message.chat.id,200)):
+        if not (feed_frog(message.chat.id, 200)):
             bot.send_message(message.chat.id, text="У вас нет букашек")
             return
         bg = 200
@@ -191,8 +204,9 @@ def func(message):
         satiety(message.chat.id, count_satiety)
         condition(message.chat.id)
         mood(message.chat.id, md)
+
     elif message.text == 'Тортик':
-        if not(feed_frog(message.chat.id,500)):
+        if not (feed_frog(message.chat.id, 500)):
             bot.send_message(message.chat.id, text="У вас нет букашек")
             return
         bg = 500
@@ -207,7 +221,8 @@ def func(message):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         back = types.KeyboardButton("Вернуться в главное меню")
         markup.add(back)
-        print_list = [f'Все букашки собраны! У тебя {show_bugs(message.chat.id)} букашек!', 'Возвращайся в главное меню']
+        print_list = [f'Все букашки собраны! У тебя {show_bugs(message.chat.id)} букашек!',
+                      'Возвращайся в главное меню']
         bot.send_message(message.chat.id, '\n'.join(print_list).format(name=message.text),
                          reply_markup=markup)
 
@@ -217,14 +232,29 @@ def func(message):
         markup.add(fighter, wizard, elf)
         back = types.KeyboardButton("Вернуться в главное меню")
         markup.add(back)
-        bot.send_message(message.chat.id, 'nn'.format(name=message.text),
+        bot.send_message(message.chat.id, 'А денег хватит? 👺'.format(name=message.text),
                          reply_markup=markup)
+
     elif message.text == "🥷":
-        upclass(message.chat.id, 1000, 'Боец')
+        if upclass(message.chat.id, 1000, 'Боец'):
+            bot.send_message(message.chat.id, 'Блин, хватило( очень жаль, что ты боец'.format(name=message.text))
+        else:
+            bot.send_message(message.chat.id, 'АХАХАХАХ! Я ТАК И ЗНАЛ! ИДИ РАБОТАЙ!'.format(name=message.text))
     elif message.text == '🧙🏻‍♂':
-        upclass(message.chat.id, 5000, 'Маг')
+        if upclass(message.chat.id, 5000, 'Маг'):
+            bot.send_message(message.chat.id, 'Блин, хватило( очень жаль, что ты маг'.format(name=message.text))
+        else:
+            bot.send_message(message.chat.id, 'АХАХАХАХ! Я ТАК И ЗНАЛ! ИДИ РАБОТАЙ!'.format(name=message.text))
     elif message.text == "🧝":
-        upclass(message.chat.id, 15000, 'Эльф')
+        if upclass(message.chat.id, 15000, 'Эльф'):
+            bot.send_message(message.chat.id, 'Блин, хватило( очень жаль, что ты эльф'.format(name=message.text))
+        else:
+            bot.send_message(message.chat.id, 'АХАХАХАХ! Я ТАК И ЗНАЛ! ИДИ РАБОТАЙ!'.format(name=message.text))
+    elif message.text == "В бой!":
+        bot.send_message(message.chat.id, 'Твой враг:'.format(name=message.text))
+        # enemy()
+        res_fight = fight(message.chat.id)
+
 
     elif (message.text == "Начать"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -232,18 +262,14 @@ def func(message):
         markup.add(btn)
         back = types.KeyboardButton("Вернуться в главное меню")
         markup.add(back)
-        bot.send_message(message.chat.id,
-                         'Если хочешь закончить, то нажми "Вернуться в главное меню"'.format(name=message.text),
-                         reply_markup=markup)
-
-        a, b, c = random.randint(1, 100), random.randint(1, 100), random.randint(1, 100)
+        a, b, c = random.randint(1, 5), random.randint(1, 5), random.randint(1, 5)
         if a == b == c:
             bot.send_message(message.chat.id, f'{a} {b} {c} Вот это удача!')
             bg = 500
             result_of_game(message.chat.id, 1, 0)
             mood(message.chat.id, 3)
             gm.clear90()
-        elif gm.counter90 == 15:
+        elif gm.counter90 == 50:
             bot.send_message(message.chat.id, f'{a} {b} {c} Но это гарант😳')
             bg = 500
             result_of_game(message.chat.id, 1, 0)
