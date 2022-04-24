@@ -14,7 +14,6 @@ def rules(message):
 /fortune - Сыграть в рулетку
 /playrps - Сыграть в камень-ножницы-бумага
 /area -	Отправить лягушку на арену, где можно драться с рандомными жабами и получать награды
-/shop -	Покупка дополнительных бонусов, которые используются сразу же
 /upclass - Повысить уровень класса
 '''.format(name=message.text))
 
@@ -67,14 +66,30 @@ def show(message):
     markup.add(back)
     frog = take_frog(message.chat.id)
     sp = [f'🐸 Имя: {message.from_user.first_name}',
-          f'🦟 Сытость: {frog[0]}',
-          f'💚 Состояние: {frog[1]}',
-          f'🐞 Букашки: {frog[2]}',
-          f'🛠 Класс: {frog[3]}',
-          f'🚬 Настроение: {frog[4]}',
-          f'✅ Победы: {frog[5]}',
-          f'❌ Поражения: {frog[6]}']
+          f'🍀 Здоровье: {frog[0]}',
+          f'🦟 Сытость: {frog[1]}',
+          f'💚 Состояние: {frog[2]}',
+          f'🐞 Букашки: {frog[3]}',
+          f'🛠 Класс: {frog[4]}',
+          f'🚬 Настроение: {frog[5]}',
+          f'💪 Сила атаки: {frog[6]}',
+          f'✅ Победы: {frog[7]}',
+          f'❌ Поражения: {frog[8]}']
     bot.send_message(message.chat.id, ('\n').join(sp).format(name=message.text), reply_markup=markup)
+
+
+@bot.message_handler(commands=['upclass'])
+def up_class(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn = types.KeyboardButton("Повысить класс")
+    markup.add(btn)
+    bot.send_message(message.chat.id, '''
+Всего 4 класса. Ты также можешь их купить за букашек.
+"Новичок": дается каждому игроку бесплатно
+"Боец": 1.000 букашек
+"Маг": 5.000 букашек
+"Эльф": 15.000 букашек
+'''.format(name=message.text), reply_markup=markup)
 
 
 @bot.message_handler(commands=['feed'])
@@ -93,19 +108,26 @@ def money(message):
     btn = types.KeyboardButton("Собрать букашек")
     markup.add(btn)
     bot.send_message(message.chat.id,
-                     '''За сегодня накопилось столько букашек:'''.format(
+                     '''За сегодня накопилось столько букашек: '''.format(
                          name=message.text), reply_markup=markup)
 
 
 class Game:
     def __init__(self):
-        self.counter = 0
+        self.counter10 = 0
+        self.counter90 = 0
 
-    def iterate(self):
-        self.counter += 1
+    def iterate10(self):
+        self.counter10 += 1
 
-    def clear(self):
-        self.counter = 0
+    def iterate90(self):
+        self.counter90 += 1
+
+    def clear90(self):
+        self.counter90 = 0
+
+    def clear10(self):
+        self.counter10 = 0
 
 
 gm = Game()
@@ -142,16 +164,67 @@ def func(message):
         markup.add(back)
         bot.send_message(message.chat.id, text='''
 У нас есть несколько блюд:
-Яичница: 100 букашек, +50 к сытости, +30 к состоянию, настроение повышается на одну фазу
-Шашлычок: 200 букашек, +100 к сытости, +50 к состоянию, настроение повышается на две фазы
-Тортик: 500 букашек, +300 к сытости, +150 к состоянию, настроение повышается на 4 фазы''', reply_markup=markup)
+Яичница: 100 букашек, +50 к сытости, живая, настроение повышается на одну фазу
+
+Шашлычок: 200 букашек, +100 к сытости, живая, настроение повышается на две фазы
+
+Тортик: 500 букашек, +300 к сытости, живая, настроение повышается на 4 фазы''', reply_markup=markup)
+    elif message.text == "Яичница":
+        if not(feed_frog(message.chat.id,100)):
+            bot.send_message(message.chat.id, text="У вас нет букашек")
+            return
+        bg = 100
+        count_satiety = 50
+        md = 1
+        take_away_bugs(message.chat.id, bg)
+        satiety(message.chat.id, count_satiety)
+        condition(message.chat.id)
+        mood(message.chat.id, md)
+    elif message.text == "Шашлычок":
+        if not(feed_frog(message.chat.id,200)):
+            bot.send_message(message.chat.id, text="У вас нет букашек")
+            return
+        bg = 200
+        count_satiety = 100
+        md = 2
+        take_away_bugs(message.chat.id, bg)
+        satiety(message.chat.id, count_satiety)
+        condition(message.chat.id)
+        mood(message.chat.id, md)
+    elif message.text == 'Тортик':
+        if not(feed_frog(message.chat.id,500)):
+            bot.send_message(message.chat.id, text="У вас нет букашек")
+            return
+        bg = 500
+        count_satiety = 300
+        md = 4
+        take_away_bugs(message.chat.id, bg)
+        satiety(message.chat.id, count_satiety)
+        condition(message.chat.id)
+        mood(message.chat.id, md)
+
     elif (message.text == "Собрать букашек"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         back = types.KeyboardButton("Вернуться в главное меню")
         markup.add(back)
-        bot.send_message(message.chat.id,
-                         'Все букашки собраны! У тебя х букашек! Возвращайся в главное меню'.format(name=message.text),
+        print_list = [f'Все букашки собраны! У тебя {show_bugs(message.chat.id)} букашек!', 'Возвращайся в главное меню']
+        bot.send_message(message.chat.id, '\n'.join(print_list).format(name=message.text),
                          reply_markup=markup)
+
+    elif message.text == 'Повысить класс':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        fighter, wizard, elf = types.KeyboardButton("🥷"), types.KeyboardButton("🧙🏻‍♂"), types.KeyboardButton("🧝")
+        markup.add(fighter, wizard, elf)
+        back = types.KeyboardButton("Вернуться в главное меню")
+        markup.add(back)
+        bot.send_message(message.chat.id, 'nn'.format(name=message.text),
+                         reply_markup=markup)
+    elif message.text == "🥷":
+        upclass(message.chat.id, 1000, 'Боец')
+    elif message.text == '🧙🏻‍♂':
+        upclass(message.chat.id, 5000, 'Маг')
+    elif message.text == "🧝":
+        upclass(message.chat.id, 15000, 'Эльф')
 
     elif (message.text == "Начать"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -163,33 +236,39 @@ def func(message):
                          'Если хочешь закончить, то нажми "Вернуться в главное меню"'.format(name=message.text),
                          reply_markup=markup)
 
-        count_guarantee90 = []
         a, b, c = random.randint(1, 100), random.randint(1, 100), random.randint(1, 100)
         if a == b == c:
             bot.send_message(message.chat.id, f'{a} {b} {c} Вот это удача!')
             bg = 500
-            count_guarantee90 = []
-        elif len(count_guarantee90) == 15:
-            bot.send_message(message.chat.id, f'{a} {b} {c} Это гарант😳')
+            result_of_game(message.chat.id, 1, 0)
+            mood(message.chat.id, 3)
+            gm.clear90()
+        elif gm.counter90 == 15:
+            bot.send_message(message.chat.id, f'{a} {b} {c} Но это гарант😳')
             bg = 500
-            count_guarantee90 = []
+            result_of_game(message.chat.id, 1, 0)
+            mood(message.chat.id, 3)
+            gm.clear90()
         else:
-            if gm.counter == 9:
+            if gm.counter10 == 9:
                 bot.send_message(message.chat.id, f'{a} {b} {c} Довольно неплохо!')
                 bg = 250
-                gm.clear()
+                mood(message.chat.id, 2)
+                gm.clear10()
             else:
                 if len(set([a, b, c])) == 2:
                     bot.send_message(message.chat.id, f'{a} {b} {c} Довольно неплохо!')
                     bg = 250
-                    gm.clear()
+                    mood(message.chat.id, 2)
+                    gm.clear10()
                 else:
                     bot.send_message(message.chat.id, f'{a} {b} {c} Мда...')
-                    bg = 20
-                    gm.iterate()
-            count_guarantee90.append(1)
+                    bg = -20
+                    result_of_game(message.chat.id, 0, 1)
+                    mood(message.chat.id, 0)
+                    gm.iterate10()
+                    gm.iterate90()
         add_bugs(message.chat.id, bg)
-        # print('fewjo',count_guarantee90)
 
 
     elif (message.text == "🗿✂📃"):
@@ -207,28 +286,55 @@ def func(message):
         bot.send_message(message.chat.id, f'{frog}')
         if frog == "🗿":
             bot.send_message(message.chat.id, text='Ничья')
+            add_bugs(message.chat.id, 0)
+            mood(message.chat.id, 1)
+            result_of_game(message.chat.id, 0, 0)
         elif frog == '✂':
             bot.send_message(message.chat.id, text='Ты выиграл')
+            add_bugs(message.chat.id, 100)
+            mood(message.chat.id, 2)
+            result_of_game(message.chat.id, 1, 0)
         else:
             bot.send_message(message.chat.id, text='Ты проиграл')
+            add_bugs(message.chat.id, -10)
+            mood(message.chat.id, -1)
+            result_of_game(message.chat.id, 0, 1)
     elif (message.text == '✂'):
         frog = random.choice(rps)
         bot.send_message(message.chat.id, f'{frog}')
         if frog == '✂':
             bot.send_message(message.chat.id, text='Ничья')
+            add_bugs(message.chat.id, 0)
+            mood(message.chat.id, 1)
+            result_of_game(message.chat.id, 0, 0)
         elif frog == '📃':
             bot.send_message(message.chat.id, text='Ты выиграл')
+            add_bugs(message.chat.id, 100)
+            mood(message.chat.id, 2)
+            result_of_game(message.chat.id, 1, 0)
         else:
             bot.send_message(message.chat.id, text='Ты проиграл')
+            add_bugs(message.chat.id, -10)
+            mood(message.chat.id, -1)
+            result_of_game(message.chat.id, 0, 1)
     elif (message.text == '📃'):
         frog = random.choice(rps)
         bot.send_message(message.chat.id, f'{frog}')
         if frog == '📃':
             bot.send_message(message.chat.id, text='Ничья')
+            add_bugs(message.chat.id, 0)
+            mood(message.chat.id, 1)
+            result_of_game(message.chat.id, 0, 0)
         elif frog == '🗿':
             bot.send_message(message.chat.id, text='Ты выиграл')
+            add_bugs(message.chat.id, 100)
+            mood(message.chat.id, 2)
+            result_of_game(message.chat.id, 1, 0)
         else:
             bot.send_message(message.chat.id, text='Ты проиграл')
+            add_bugs(message.chat.id, -10)
+            mood(message.chat.id, -1)
+            result_of_game(message.chat.id, 0, 1)
 
     elif (message.text == "Вернуться в главное меню"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
