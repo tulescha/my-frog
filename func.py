@@ -48,7 +48,7 @@ def fortune(message):
 
 
 @bot.message_handler(commands=['playrps'])
-def fortune(message):
+def playrps(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn = types.KeyboardButton("🗿✂📃")
     markup.add(btn)
@@ -167,21 +167,21 @@ def func(message):
 
     elif message.text == "Покормить":
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        eggs = types.KeyboardButton("Яичница")
-        meat = types.KeyboardButton("Шашлычок")
-        cake = types.KeyboardButton("Тортик")
+        eggs = types.KeyboardButton("🍳")
+        meat = types.KeyboardButton("🍖")
+        cake = types.KeyboardButton("🎂")
         markup.add(eggs, meat, cake)
         back = types.KeyboardButton("Вернуться в главное меню")
         markup.add(back)
         bot.send_message(message.chat.id, text='''
 У нас есть несколько блюд:
-Яичница: 100 букашек, +50 к сытости, живая, настроение повышается на одну фазу
+🍳 Яичница: 100 букашек, +50 к сытости, живая, настроение повышается на одну фазу
 
-Шашлычок: 200 букашек, +100 к сытости, живая, настроение повышается на две фазы
+🍖 Шашлычок: 200 букашек, +100 к сытости, живая, настроение повышается на две фазы
 
-Тортик: 500 букашек, +300 к сытости, живая, настроение повышается на 4 фазы''', reply_markup=markup)
+🎂 Тортик: 500 букашек, +300 к сытости, живая, настроение повышается на 4 фазы''', reply_markup=markup)
 
-    elif message.text == "Яичница":
+    elif message.text == "🍳":
         if not (feed_frog(message.chat.id, 100)):
             bot.send_message(message.chat.id, text="У вас нет букашек")
             return
@@ -192,8 +192,9 @@ def func(message):
         satiety(message.chat.id, count_satiety)
         condition(message.chat.id)
         mood(message.chat.id, md)
+        bot.send_message(message.chat.id, text="Он твой!")
 
-    elif message.text == "Шашлычок":
+    elif message.text == "🍖":
         if not (feed_frog(message.chat.id, 200)):
             bot.send_message(message.chat.id, text="У вас нет букашек")
             return
@@ -204,8 +205,9 @@ def func(message):
         satiety(message.chat.id, count_satiety)
         condition(message.chat.id)
         mood(message.chat.id, md)
+        bot.send_message(message.chat.id, text="Он твой!")
 
-    elif message.text == 'Тортик':
+    elif message.text == '🎂':
         if not (feed_frog(message.chat.id, 500)):
             bot.send_message(message.chat.id, text="У вас нет букашек")
             return
@@ -216,6 +218,7 @@ def func(message):
         satiety(message.chat.id, count_satiety)
         condition(message.chat.id)
         mood(message.chat.id, md)
+        bot.send_message(message.chat.id, text="Он твой!")
 
     elif (message.text == "Собрать букашек"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -261,14 +264,16 @@ def func(message):
         res_fight = fight(message.chat.id, heal, attack, enemy)
         bot.send_message(message.chat.id, res_fight)
 
-
-
     elif (message.text == "Начать"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn = types.KeyboardButton("Начать")
         markup.add(btn)
         back = types.KeyboardButton("Вернуться в главное меню")
         markup.add(back)
+        bot.send_message(message.chat.id,'''
+Если хочешь закончить, 
+то пропиши "/rules" или "Вернуться в главное меню"'''.format(name=message.text),
+                         reply_markup=markup)
         a, b, c = random.randint(1, 5), random.randint(1, 5), random.randint(1, 5)
         if a == b == c:
             bot.send_message(message.chat.id, f'{a} {b} {c} Вот это удача!')
@@ -310,8 +315,9 @@ def func(message):
         markup.add(rock, paper, scissors)
         back = types.KeyboardButton("Вернуться в главное меню")
         markup.add(back)
-        bot.send_message(message.chat.id,
-                         'Если хочешь закончить, то нажми "Вернуться в главное меню"'.format(name=message.text),
+        bot.send_message(message.chat.id, '''
+Если хочешь закончить, 
+то пропиши "/rules" или "Вернуться в главное меню"'''.format(name=message.text),
                          reply_markup=markup)
 
     elif (message.text == "🗿"):
@@ -329,7 +335,7 @@ def func(message):
             result_of_game(message.chat.id, 1, 0)
         else:
             bot.send_message(message.chat.id, text='Ты проиграл')
-            add_bugs(message.chat.id, -10)
+            add_bugs(message.chat.id, -30)
             mood(message.chat.id, -1)
             result_of_game(message.chat.id, 0, 1)
     elif (message.text == '✂'):
@@ -347,7 +353,7 @@ def func(message):
             result_of_game(message.chat.id, 1, 0)
         else:
             bot.send_message(message.chat.id, text='Ты проиграл')
-            add_bugs(message.chat.id, -10)
+            add_bugs(message.chat.id, -30)
             mood(message.chat.id, -1)
             result_of_game(message.chat.id, 0, 1)
     elif (message.text == '📃'):
@@ -365,7 +371,7 @@ def func(message):
             result_of_game(message.chat.id, 1, 0)
         else:
             bot.send_message(message.chat.id, text='Ты проиграл')
-            add_bugs(message.chat.id, -10)
+            add_bugs(message.chat.id, -30)
             mood(message.chat.id, -1)
             result_of_game(message.chat.id, 0, 1)
 
